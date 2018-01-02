@@ -4,7 +4,111 @@
 // but you don't so you're going to write it from scratch:
 
 
-// recursive reimplementation of JSON.stringify
+//My recursive solution
+function stringifyJSON(obj) {
+  // your code goes here
+
+  //check for single values
+  var singleValue = stringifySingleValues(obj);
+  if(singleValue !== false){
+    return singleValue;
+  }
+
+  var jsonParsedFilling = '';
+
+  //check for arrays
+  if(Array.isArray(obj)){
+    jsonParsedFilling = stringifyArrays(obj);
+    return jsonParsedFilling;
+
+  }
+
+// objects
+  jsonParsedFilling = stringifyObjects(obj);
+  return jsonParsedFilling;
+};
+
+//utility functions
+
+function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
+}
+
+function stringifySingleValues(value){
+  if(value === undefined){
+    return undefined;
+  } else if(typeof value === 'number' || value === null || typeof value === 'boolean'){
+    return String(value);
+  } else if(typeof value === 'string'){
+    return '"' + value + '"';
+  } else {
+    return false;
+  }
+}
+
+function stringifyObjects(obj){
+  var jsonParsedFilling = '';
+  var keys = Object.keys(obj);
+  var values = Object.values(obj);
+
+  if(keys.length < 1){
+    return '{' + jsonParsedFilling + '}';
+  } else {
+    let key;
+    let stringifiable = true;
+    for(let i = 0; i < keys.length; i++){
+      key = keys[i];
+      if(Array.isArray(values[i])){
+        jsonParsedFilling += stringifyJSON(key) + ':';
+        jsonParsedFilling += stringifyArrays(values[i]);
+
+      } else if(!key || obj[key] === undefined || typeof key === 'function' || typeof obj[key] === 'function'){
+          stringifiable = false;
+      } else if(typeof values[i] === 'object' && values[i] !== null){
+        jsonParsedFilling += stringifyJSON(key) + ':';
+        jsonParsedFilling += stringifyJSON(obj[key]);
+
+      } else {
+        jsonParsedFilling += stringifyJSON(key) + ':';
+        jsonParsedFilling += stringifyJSON(values[i]);
+      }
+
+      if(!(i === keys.length - 1) && stringifiable){
+        jsonParsedFilling += ',';
+      }
+    }
+    return '{' + jsonParsedFilling + '}';
+  }
+}
+
+function stringifyArrays(obj){
+  var jsonParsedFilling = '';
+  if(obj.length < 1){
+    return '[' + jsonParsedFilling + ']';
+  } else {
+    for (var i = 0; i < obj.length; i++) {
+      if(Array.isArray(obj[i])){
+        jsonParsedFilling += stringifyJSON(obj[i]);
+      } else if(!Array.isArray(obj[i]) && typeof obj[i] === 'object'){
+        jsonParsedFilling += stringifyObjects(obj[i]);
+      } else {
+        jsonParsedFilling += stringifyJSON(obj[i]);
+      }
+
+      if(!(i === obj.length - 1)){
+        jsonParsedFilling += ',';
+      }
+    }
+    return '[' + jsonParsedFilling + ']';
+  }
+}
+
+
+// a better recursive reimplementation found online
 // var stringifyJSON = function(obj) {
 //
 //   // null
@@ -66,106 +170,3 @@
 //   return obj.toString();
 //
 // };
-
-
-function stringifyJSON(obj) {
-  // your code goes here
-
-  //check for single values
-  var singleValue = stringifySingleValues(obj);
-  if(singleValue !== false){
-    return singleValue;
-  }
-
-  var jsonParsedFilling = '';
-
-  //check for arrays
-  if(Array.isArray(obj)){
-    jsonParsedFilling = stringifyArrays(obj);
-    return jsonParsedFilling;
-
-  }
-
-// objects
-  jsonParsedFilling = stringifyObjects(obj);
-  return jsonParsedFilling;
-};
-
-//utility functions
-
-function isEmpty(obj) {
-    for(var key in obj) {
-        if(obj.hasOwnProperty(key))
-            return false;
-    }
-    return true;
-}
-
-function stringifySingleValues(value){
-  if(value === undefined){
-    return undefined;
-  } else if(typeof value === 'number' || value === null || typeof value === 'boolean'){
-    return String(value);
-  } else if(typeof value === 'string'){
-    return '"' + value + '"';
-  } else {
-    return false;
-  }
-}
-
-function stringifyObjects(obj){
-  var jsonParsedFilling = '';
-  var keys = Object.keys(obj);
-  var values = Object.values(obj);
-
-  if(keys.length < 1){
-    return '{' + jsonParsedFilling + '}';
-  } else {
-    let key;
-    let stringifiable = true;
-    for(let i = 0; i < keys.length; i++){
-      key = keys[i];
-      if(Array.isArray(values[i])){
-        jsonParsedFilling += stringifySingleValues(key) + ':';
-        jsonParsedFilling += stringifyArrays(values[i]);
-
-      } else if(!key || obj[key] === undefined || typeof key === 'function' || typeof obj[key] === 'function'){
-          stringifiable = false;
-      } else if(typeof values[i] === 'object' && values[i] !== null){
-        jsonParsedFilling += stringifySingleValues(key) + ':';
-        jsonParsedFilling += stringifyJSON(obj[key]);
-
-      } else {
-        jsonParsedFilling += stringifySingleValues(key) + ':';
-        jsonParsedFilling += stringifySingleValues(values[i]);
-      }
-
-      if(!(i === keys.length - 1) && stringifiable){
-        jsonParsedFilling += ',';
-      }
-    }
-    return '{' + jsonParsedFilling + '}';
-  }
-}
-
-function stringifyArrays(obj){
-  var jsonParsedFilling = '';
-  if(obj.length < 1){
-    return '[' + jsonParsedFilling + ']';
-  } else {
-    for (var i = 0; i < obj.length; i++) {
-      if(Array.isArray(obj[i])){
-        jsonParsedFilling += stringifyJSON(obj[i]);
-      } else if(!Array.isArray(obj[i]) && typeof obj[i] === 'object'){
-        jsonParsedFilling += stringifyObjects(obj[i]);
-      } else {
-        jsonParsedFilling += stringifySingleValues(obj[i]);
-      }
-
-      if(!(i === obj.length - 1)){
-        jsonParsedFilling += ',';
-      }
-    }
-    return '[' + jsonParsedFilling + ']';
-  }
-}
