@@ -29,7 +29,40 @@
 //after the loop return the nodesWithTargetClassName
 
 
-var getElementsByClassName = function(className) {
+function getElementsByClassName(className) {
   // your code here
+  let currentParent;
+  let nodesWithTargetClassName = [];
+  if(this === window){
+    currentParent = document.body;
+    if(currentParent.classList.contains(className)){
+      nodesWithTargetClassName.push(currentParent);
+    }
+  } else {
+    currentParent = this;
+  }
 
-};
+
+  let children = currentParent.children;
+  let currentChild;
+
+  //no more children
+  if(currentParent.children.length < 1){
+    if (currentParent.classList.contains(className)) {
+      nodesWithTargetClassName.push(currentParent);
+    }
+    return nodesWithTargetClassName;
+  } else {
+    for (let i = 0; i < children.length; i++) {
+      currentChild = children[i];
+      if(currentChild.classList.contains(className)){
+        nodesWithTargetClassName.push(currentChild);
+      }
+
+      //recursion
+      nodesWithTargetClassName.push(...currentChild.getElementsByClassName(className));
+    }
+    return nodesWithTargetClassName;
+  }
+
+}
